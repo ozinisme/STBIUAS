@@ -1,0 +1,287 @@
+> #install.packages("tm")
+> #install.packages("RTextTools")
+> #install.packages("e1071")
+> #install.packages("dplyr")
+> install.packages("caret")
+Installing package into ‘C:/Users/Ozinisme/Documents/R/win-library/3.5’
+(as ‘lib’ is unspecified)
+trying URL 'https://cran.rstudio.com/bin/windows/contrib/3.5/caret_6.0-81.zip'
+Content type 'application/zip' length 6133570 bytes (5.8 MB)
+downloaded 4.7 MB
+
+Warning in install.packages :
+  downloaded length 4911104 != reported length 6133570
+Warning in install.packages :
+  error 1 in extracting from zip file
+Warning in install.packages :
+  cannot open compressed file 'caret/DESCRIPTION', probable reason 'No such file or directory'
+Error in install.packages : cannot open the connection
+> install.packages("N:/eri-20181217/tm_0.7-5.zip", repos = NULL, type = "win.binary")
+Installing package into ‘C:/Users/Ozinisme/Documents/R/win-library/3.5’
+(as ‘lib’ is unspecified)
+package ‘tm’ successfully unpacked and MD5 sums checked
+> install.packages("N:/eri-20181217/RTextTools_1.4.2.zip", repos = NULL, type = "win.binary")
+Installing package into ‘C:/Users/Ozinisme/Documents/R/win-library/3.5’
+(as ‘lib’ is unspecified)
+package ‘RTextTools’ successfully unpacked and MD5 sums checked
+> install.packages("N:/eri-20181217/e1071_1.7-0.zip", repos = NULL, type = "win.binary")
+Installing package into ‘C:/Users/Ozinisme/Documents/R/win-library/3.5’
+(as ‘lib’ is unspecified)
+package ‘e1071’ successfully unpacked and MD5 sums checked
+> install.packages("N:/eri-20181217/dplyr_0.7.8.zip", repos = NULL, type = "win.binary")
+Installing package into ‘C:/Users/Ozinisme/Documents/R/win-library/3.5’
+(as ‘lib’ is unspecified)
+package ‘dplyr’ successfully unpacked and MD5 sums checked
+> install.packages("caret")
+Installing package into ‘C:/Users/Ozinisme/Documents/R/win-library/3.5’
+(as ‘lib’ is unspecified)
+trying URL 'https://cran.rstudio.com/bin/windows/contrib/3.5/caret_6.0-81.zip'
+Content type 'application/zip' length 6133570 bytes (5.8 MB)
+downloaded 5.8 MB
+
+package ‘caret’ successfully unpacked and MD5 sums checked
+
+The downloaded binary packages are in
+	C:\Users\Ozinisme\AppData\Local\Temp\RtmpmYcJOW\downloaded_packages
+> install.packages("doMC", repos="http://R-Forge.R-project.org")
+Installing package into ‘C:/Users/Ozinisme/Documents/R/win-library/3.5’
+(as ‘lib’ is unspecified)
+trying URL 'http://R-Forge.R-project.org/bin/windows/contrib/3.5/doMC_1.3.5.zip'
+Content type 'application/zip' length 166503 bytes (162 KB)
+downloaded 162 KB
+
+package ‘doMC’ successfully unpacked and MD5 sums checked
+
+The downloaded binary packages are in
+	C:\Users\Ozinisme\AppData\Local\Temp\RtmpmYcJOW\downloaded_packages
+> library(tm)
+Loading required package: NLP
+> library(RTextTools)
+Loading required package: SparseM
+
+Attaching package: ‘SparseM’
+
+The following object is masked from ‘package:base’:
+
+    backsolve
+
+> library(e1071)
+> library(dplyr)
+
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+> library(caret)
+Loading required package: lattice
+Loading required package: ggplot2
+
+Attaching package: ‘ggplot2’
+
+The following object is masked from ‘package:NLP’:
+
+    annotate
+
+> 
+> 
+> library(doMC)
+Loading required package: foreach
+Loading required package: iterators
+Loading required package: parallel
+> registerDoMC(cores=detectCores())
+> df<- read.csv("D:/cobaR/data_uji.csv", stringsAsFactors = FALSE)
+> glimpse(df)
+Observations: 40
+Variables: 4
+$ class    <chr> "Pos", "Pos", "Pos", "Pos", "Pos", "Pos", "Pos", "Pos", "Pos", ...
+$ text     <chr> "Buat hoax baru ga pake waktu lama. Ngatasin hoax yang udah ter...
+$ username <chr> "@permadiaktivis", "@maspleki", "@bundabaik", "@IrRukmn", "@Bca...
+$ tgl      <chr> "1/5/2019", "1/5/2019", "12/24/2018", "1/2/2019", "1/2/2019", "...
+> df$class <- as.factor(df$class)
+> custom_stopwords <- read.csv("D:/cobaR/stopword.csv", header = FALSE)
+> custom_stopwords <- as.character(custom_stopwords$V1)
+> custom_stopwords <- c(custom_stopwords, stopwords())
+> corpus <- Corpus(VectorSource(df$text))
+> corpus
+<<SimpleCorpus>>
+Metadata:  corpus specific: 1, document level (indexed): 0
+Content:  documents: 40
+> inspect(corpus[1:3])
+<<SimpleCorpus>>
+Metadata:  corpus specific: 1, document level (indexed): 0
+Content:  documents: 3
+
+[1] Buat hoax baru ga pake waktu lama. Ngatasin hoax yang udah tersebar butuh waktu, tenaga dan biaya yang tidak sedikit (plus harus diliput media biar jelas). Ternyata enak banget buat Hoax. Pantas kampretos gak kapok2. #facepalm #TetapJokowi         
+[2] Kita tidak pernah kekurangan alasan untuk #TetapJokowi dan alasan itu selalu saja bertambah. Tidak neko2 dan tidak meracuni anak dengan korupsi, fasilitas dan syahwat kekuasaan sudah lebih cukup sebagai alasan untuk memilih pak @jokowi lagi.       
+[3] Lagi godain temen yg posting2 pengharaman ucapan natal di igs, gwe ucapin selamat natal aja sekalian, semoga damai natal bersama kita smua ... tdus die bales komen ai dgn emot monyet nutup mata, ai bales lagi kiss2 yg banyak ... #sikap #TetapJokowi
+> corpus.clean <- corpus %>%
++   tm_map(content_transformer(tolower)) %>% 
++   tm_map(removePunctuation) %>%
++   tm_map(removeNumbers) %>%
++   tm_map(removeWords, custom_stopwords) %>%
++   tm_map(stripWhitespace)
+Warning messages:
+1: In tm_map.SimpleCorpus(., content_transformer(tolower)) :
+  transformation drops documents
+2: In tm_map.SimpleCorpus(., removePunctuation) :
+  transformation drops documents
+3: In tm_map.SimpleCorpus(., removeNumbers) :
+  transformation drops documents
+4: In tm_map.SimpleCorpus(., removeWords, custom_stopwords) :
+  transformation drops documents
+5: In tm_map.SimpleCorpus(., stripWhitespace) :
+  transformation drops documents
+> corpus.clean <- corpus %>%
++ tm_map(content_transformer(tolower)) %>%
++ tm_map(removePunctuation) %>%
++ tm_map(removeNumbers) %>%
++ tm_map(removeNumbers) %>%
++   tm_map(removeWords, custom_stopwords) %>%
++ tm_map(stripWhitespace)
+Warning messages:
+1: In tm_map.SimpleCorpus(., content_transformer(tolower)) :
+  transformation drops documents
+2: In tm_map.SimpleCorpus(., removePunctuation) :
+  transformation drops documents
+3: In tm_map.SimpleCorpus(., removeNumbers) :
+  transformation drops documents
+4: In tm_map.SimpleCorpus(., removeNumbers) :
+  transformation drops documents
+5: In tm_map.SimpleCorpus(., removeWords, custom_stopwords) :
+  transformation drops documents
+6: In tm_map.SimpleCorpus(., stripWhitespace) :
+  transformation drops documents
+> dtm <- DocumentTermMatrix(corpus.clean)
+> inspect(dtm[1:5, 1:4])
+<<DocumentTermMatrix (documents: 5, terms: 4)>>
+Non-/sparse entries: 4/16
+Sparsity           : 80%
+Maximal term length: 6
+Weighting          : term frequency (tf)
+Sample             :
+    Terms
+Docs banget biar biaya butuh
+   1      1    1     1     1
+   2      0    0     0     0
+   3      0    0     0     0
+   4      0    0     0     0
+   5      0    0     0     0
+> df.train <- df[1:30,]
+> df.test <- df[31:40,]
+> dtm.train <- dtm[1:30,]
+> dtm.test <- dtm[31:40,]
+> dim(dtm.train)
+[1]  30 352
+> corpus.clean.train <- corpus.clean[1:30]
+> corpus.clean.test <- corpus.clean[31:40]
+> dtm.train.nb <- DocumentTermMatrix(corpus.clean.train)
+> dim(dtm.train.nb)
+[1]  30 278
+> dtm.test.nb <- DocumentTermMatrix(corpus.clean.test)
+> dim(dtm.test.nb)
+[1] 10 86
+> convert_count <- function(x) {
++   y <- ifelse(x > 0, 1,0)
++   y <- factor(y, levels=c(0,1), labels=c("0", "1"))
++   y
++ }
+> trainNB <- apply(dtm.train.nb, 2, convert_count)
+> testNB <- apply(dtm.test.nb, 2, convert_count)
+> system.time( classifier <- naiveBayes(trainNB, df.train$class, laplace = 1) )
+   user  system elapsed 
+   0.09    0.00    0.09 
+> predict(classifier, newdata=testNB)
+Error in `[[<-.data.frame`(`*tmp*`, i, value = integer(0)) : 
+  replacement has 0 rows, data has 10
+> system.time( pred <- predict(classifier, newdata=testNB) )
+Error in `[[<-.data.frame`(`*tmp*`, i, value = integer(0)) : 
+  replacement has 0 rows, data has 10
+Timing stopped at: 0.05 0 0.05
+> table("Predictions"= pred,  "Actual" = df.test$class )
+Error in table(Predictions = pred, Actual = df.test$class) : 
+  object 'pred' not found
+> table("Predictions"= predict,  "Actual" = df.test$class )
+Error in unique.default(x, nmax = nmax) : 
+  unique() applies only to vectors
+> conf.mat <- confusionMatrix(pred, df.test$class)
+Error in confusionMatrix(pred, df.test$class) : object 'pred' not found
+> conf.mat
+Error: object 'conf.mat' not found
+> library("wordcloud")
+Loading required package: RColorBrewer
+> library("RColorBrewer")
+> install.packages("wordcloud")
+Installing package into ‘C:/Users/Ozinisme/Documents/R/win-library/3.5’
+(as ‘lib’ is unspecified)
+Warning in install.packages :
+  package ‘wordcloud’ is in use and will not be installed
+> dta <- TermDocumentMatrix(corpus.clean)
+> m <- as.matrix(dta)
+> v <- sort(rowSums(m),decreasing=TRUE)
+> d <- data.frame(word = names(v),freq=v)
+> head(d, 9)
+                       word freq
+tetapjokowi     tetapjokowi   17
+jokowi               jokowi   12
+gantipresiden gantipresiden   12
+indonesia         indonesia   10
+rakyat               rakyat   10
+gantipemimpin gantipemimpin    9
+indonesiamaju indonesiamaju    8
+jokowilagi       jokowilagi    8
+pemimpin           pemimpin    6
+> set.seed(1234)
+> wordcloud(words = d$word, freq = d$freq, min.freq = 1,
++           max.words=200, random.order=FALSE, rot.per=0.35, 
++           colors=brewer.pal(8, "Dark2"))
+There were 50 or more warnings (use warnings() to see the first 50)
+> head(d, 9)
+                       word freq
+tetapjokowi     tetapjokowi   17
+jokowi               jokowi   12
+gantipresiden gantipresiden   12
+indonesia         indonesia   10
+rakyat               rakyat   10
+gantipemimpin gantipemimpin    9
+indonesiamaju indonesiamaju    8
+jokowilagi       jokowilagi    8
+pemimpin           pemimpin    6
+> barplot(d[1:9,]$freq, las = 2, names.arg = d[1:9,]$word,
++         col ="lightblue", main ="Most frequent words",
++         ylab = "Word frequencies")
+> dr<- read.csv("D:/cobaR/data_test.csv", stringsAsFactors = FALSE)
+> factor(dr$class)
+ [1] Pos Pos Pos Pos Pos Neg Neg Neg Neg Neg
+Levels: Neg Pos
+> w=table(dr$class,paste(dr$username,sep ="."))
+> w=table(dr$username, dr$class)
+> class(w)
+[1] "table"
+> t=as.data.frame(w)
+> names(t)[1] = 'username'
+> t
+           username Var2 Freq
+1           @4Y4NKZ  Neg    0
+2  @fvuMp1qZ3bpp0Uj  Neg    1
+3         @HelHard2  Neg    1
+4          @IrRukmn  Neg    0
+5         @jihanaok  Neg    1
+6          @myng_sr  Neg    0
+7   @permadiaktivis  Neg    0
+8      @Pribumi_IDN  Neg    2
+9     @wigunaargun1  Neg    0
+10          @4Y4NKZ  Pos    1
+11 @fvuMp1qZ3bpp0Uj  Pos    0
+12        @HelHard2  Pos    0
+13         @IrRukmn  Pos    1
+14        @jihanaok  Pos    0
+15         @myng_sr  Pos    1
+16  @permadiaktivis  Pos    1
+17     @Pribumi_IDN  Pos    0
+18    @wigunaargun1  Pos    1
